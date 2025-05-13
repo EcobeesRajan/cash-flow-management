@@ -1,72 +1,85 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebase';
 
 const SigninPage = () => {
   const [pin, setPin] = useState('');
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-
-  const handleFocus = () => {
-    setIsKeyboardVisible(true);
-  };
-
-  
   const handlePinChange = (e) => {
     const value = e.target.value;
-    if (value.length <= 5 && /^[0-9]*$/.test(value)) {
-      setPin(value); 
+    if (/^\d{0,5}$/.test(value)) {
+      setPin(value);
+      setError('');
     }
   };
 
-  useEffect(() => {
-    
-    const handleResize = () => {
-      if (window.innerHeight < 600) {
-        setIsKeyboardVisible(true); 
-      } else {
-        setIsKeyboardVisible(false);
-      }
-    };
+  const handleLogin = async () => {
+    if (pin.length < 5) {
+      setError('Please enter a 5-digit PIN.');
+      return;
+    }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    setLoading(true);
+    try {
+      const userRef = doc(db, 'users', pin);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        setError('Invalid PIN. Try again.');
+        setLoading(false);
+        return;
+      }
+
+      const user = userSnap.data();
+      const role = user.role?.toLowerCase();
+
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'staff') {
+        navigate('/staff');
+      } else {
+        setError('Unknown role assigned.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center min-h-screen bg-white p-4 transition-all duration-300 ${
-        isKeyboardVisible ? 'mt-10' : ''
-      }`}
-      style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '0',
-      }}
-    >
-      
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
       <div className="w-full max-w-sm text-center mt-10">
-        <h1 className="text-2xl font-semibold mb-8">Enter your pin code</h1>
+        <h1 className="text-2xl font-semibold mb-4">Enter your PIN code</h1>
 
-       
         <input
-          type="password" 
+          type="password"
           value={pin}
           onChange={handlePinChange}
-          onFocus={handleFocus}
           maxLength={5}
-          className="w-full mb-8 px-4 py-3 border-2 rounded-md text-2xl text-center font-mono shadow-sm"
+          className="w-full mb-4 px-4 py-3 border-2 rounded-md text-2xl text-center font-mono"
           placeholder="Enter 5-digit PIN"
           autoFocus
         />
 
-        
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+
         <button
-          disabled={pin.length !== 5}
-          className="w-full bg-green-600 text-white py-3 rounded-full disabled:bg-gray-300 text-lg font-semibold"
+          onClick={handleLogin}
+          disabled={pin.length < 5 || loading}
+          className={`w-full py-3 rounded-full text-lg font-semibold ${
+            pin.length === 5 && !loading
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+          }`}
         >
-          Log in
+          {loading ? 'Logging in...' : 'Login'}
         </button>
       </div>
     </div>
@@ -74,3 +87,4 @@ const SigninPage = () => {
 };
 
 export default SigninPage;
+
