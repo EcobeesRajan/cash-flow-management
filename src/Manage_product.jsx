@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,21 +17,14 @@ const ManageProductPage = () => {
       </button>
 
       <button
-        onClick={() => navigate('/view-products')}
-        className="px-6 py-3 bg-blue-600 text-white rounded-md text-lg w-64"
-      >
-        View Product Details
-      </button>
-
-      <button
-        onClick={() => navigate('/edit-product')} // placeholder
+        onClick={() => navigate('/edit-product')} 
         className="px-6 py-3 bg-yellow-500 text-white rounded-md text-lg w-64"
       >
         Edit Product
       </button>
 
       <button
-        onClick={() => navigate('/delete-product')} // placeholder
+        onClick={() => navigate('/delete-product')}
         className="px-6 py-3 bg-red-600 text-white rounded-md text-lg w-64"
       >
         Delete Product
