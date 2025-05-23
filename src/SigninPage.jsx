@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import Cookies from 'js-cookie';
 
 const SigninPage = () => {
   const [pin, setPin] = useState('');
@@ -37,6 +38,19 @@ const SigninPage = () => {
 
       const user = userSnap.data();
       const role = user.role?.toLowerCase();
+      const name = user.name;
+
+      localStorage.setItem('pin', pin);
+      localStorage.setItem('name', name);
+      localStorage.setItem('role', role);
+      localStorage.setItem('uid', user.uid);
+      localStorage.setItem('email', user.email);
+
+
+      Cookies.set('pin', pin);
+      Cookies.set('name', name);
+      Cookies.set('role', role);
+ 
 
       if (role === 'admin') {
         navigate('/admin');
@@ -76,7 +90,7 @@ const SigninPage = () => {
           className={`w-full py-3 rounded-full text-lg font-semibold ${
             pin.length === 5 && !loading
               ? 'bg-green-600 text-white'
-              : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+              : 'bg-gray-400 text-gray-600 cursor-not-allowed'
           }`}
         >
           {loading ? 'Logging in...' : 'Login'}
@@ -87,4 +101,6 @@ const SigninPage = () => {
 };
 
 export default SigninPage;
+
+
 

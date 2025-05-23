@@ -20,17 +20,20 @@ const ManageProductPage = () => {
         onClick={() => navigate('/edit-product')} 
         className="px-6 py-3 bg-yellow-500 text-white rounded-md text-lg w-64"
       >
-        Edit Product
+        Edit1
       </button>
 
       <button
         onClick={() => navigate('/delete-product')}
         className="px-6 py-3 bg-red-600 text-white rounded-md text-lg w-64"
       >
-        Delete Product
+        Delete2
       </button>
+
     </div>
   );
 };
 
 export default ManageProductPage;
+
+
