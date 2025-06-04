@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
-const MenuPage = () => {
+const Menu = () => {
   const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,5 +113,5 @@ const MenuPage = () => {
     </div>
   );
 };
-export default MenuPage;
+export default Menu;
 

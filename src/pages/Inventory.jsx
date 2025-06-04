@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-const InventoryPage = () => {
+const Inventory = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
@@ -153,5 +153,5 @@ const InventoryPage = () => {
     </div>
   );
 };
-export default InventoryPage;
+export default Inventory;
 

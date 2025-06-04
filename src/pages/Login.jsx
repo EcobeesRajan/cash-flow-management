@@ -1,25 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
+import { useAuth } from '/home/rajan/Desktop/New Cash FLow Management/cash-flow-management/src/AuthContext.jsx';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const { user, login } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const { user } = userCredential;
-      localStorage.setItem('authUser', JSON.stringify({ email: user.email, uid: user.uid }));
-      console.log("login successful")
-      navigate('/dashboard');
-    } catch (err) {
+      await login(email, password);
+    }
+      catch (err) {
+      console.error('Login Error:', err);
       setError('Login failed: Invalid email or password.');
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <form
@@ -43,6 +52,7 @@ const Login = () => {
             placeholder="Enter your email"
           />
         </div>
+
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password
@@ -58,7 +68,9 @@ const Login = () => {
             placeholder="Enter your password"
           />
         </div>
+
         {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+
         <button
           type="submit"
           className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition duration-200"
@@ -69,4 +81,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;

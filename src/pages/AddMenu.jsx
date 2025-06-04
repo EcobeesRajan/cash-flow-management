@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-const AddMenuPage = () => {
+const AddMenu = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [type, setType] = useState("Tea");
@@ -134,4 +134,4 @@ const AddMenuPage = () => {
     </div>
   );
 };
-export default AddMenuPage;
+export default AddMenu;

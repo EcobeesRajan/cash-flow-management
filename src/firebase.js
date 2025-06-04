@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -11,7 +10,6 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGINGSENDINGID,
   appId: import.meta.env.VITE_FIREBASE_APPID,
 };
-
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

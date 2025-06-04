@@ -9,7 +9,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
-const IncomePage = () => {
+const Income = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
@@ -204,5 +204,5 @@ const IncomePage = () => {
     </div>
   );
 };
-export default IncomePage;
+export default Income;
 

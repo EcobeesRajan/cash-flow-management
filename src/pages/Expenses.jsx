@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-const ExpensesPage = () => {
+const Expenses = () => {
   const navigate = useNavigate();
   const [expenseType, setExpenseType] = useState("");
   const [inventoryList, setInventoryList] = useState([]);
@@ -267,5 +267,5 @@ const ExpensesPage = () => {
     </div>
   );
 };
-export default ExpensesPage;
+export default Expenses;
 

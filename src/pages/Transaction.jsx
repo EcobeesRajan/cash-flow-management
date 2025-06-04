@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
-const TransactionPage = () => {
+const Transaction = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,4 +181,4 @@ const TransactionPage = () => {
     </div>
   );
 };
-export default TransactionPage;
+export default Transaction;
