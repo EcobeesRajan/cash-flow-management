@@ -1,9 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
-
 const TransactionPage = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
@@ -11,7 +9,7 @@ const TransactionPage = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
+  const [expandedId, setExpandedId] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -25,10 +23,8 @@ const TransactionPage = () => {
       setTransactions(data);
       setLoading(false);
     };
-
     fetchTransactions();
   }, []);
-
   const isWithinDateRange = (date) => {
     if (!startDate && !endDate) return true;
     const d = new Date(date.toDate());
@@ -36,39 +32,35 @@ const TransactionPage = () => {
     if (endDate && d > new Date(endDate)) return false;
     return true;
   };
-
   const filteredTransactions = transactions.filter((t) => {
     const matchesType =
-      typeFilter === "all" || t.category?.toLowerCase() === typeFilter.toLowerCase();
+      typeFilter === "all" ||
+      t.category?.toLowerCase() === typeFilter.toLowerCase();
     const matchesDate = t.RecordedAt && isWithinDateRange(t.RecordedAt);
     return matchesType && matchesDate;
   });
-
   const groupByDate = (data) => {
     const groups = {};
-
     data.forEach((t) => {
       if (!t.RecordedAt) return;
-
       const dateObj = t.RecordedAt.toDate();
       const todayObj = new Date();
       const yesterdayObj = new Date();
       yesterdayObj.setDate(todayObj.getDate() - 1);
-
       let label;
-      const isToday =
-        dateObj.toDateString() === todayObj.toDateString();
+      const isToday = dateObj.toDateString() === todayObj.toDateString();
       const isYesterday =
         dateObj.toDateString() === yesterdayObj.toDateString();
 
       if (isToday) label = "Today";
       else if (isYesterday) label = "Yesterday";
-      else label = dateObj.toLocaleDateString("en-GB", {
-        weekday: "long",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
+      else
+        label = dateObj.toLocaleDateString("en-GB", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
 
       if (!groups[label]) groups[label] = [];
       groups[label].push(t);
@@ -76,16 +68,16 @@ const TransactionPage = () => {
 
     return groups;
   };
-
   const grouped = groupByDate(filteredTransactions);
-
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
         <button onClick={() => navigate(-1)} className="text-blue-600">
           ← Back
         </button>
-
         <div className="flex gap-2 flex-wrap">
           <select
             value={typeFilter}
@@ -98,7 +90,6 @@ const TransactionPage = () => {
             <option value="Inventory">Inventory</option>
             <option value="Income">Income</option>
           </select>
-
           <input
             type="date"
             max={today}
@@ -115,7 +106,9 @@ const TransactionPage = () => {
           />
         </div>
       </div>
-      <h2 className="text-2xl font-bold mb-4 text-center">Transaction Records</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        Transaction Records
+      </h2>
 
       {(startDate || endDate || typeFilter !== "all") && (
         <div className="text-center text-sm text-gray-600 mb-4">
@@ -123,7 +116,6 @@ const TransactionPage = () => {
           {startDate || "beginning"} to {endDate || "today"}
         </div>
       )}
-
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, idx) => (
@@ -145,27 +137,39 @@ const TransactionPage = () => {
                   {records.map((t) => (
                     <div
                       key={t.id}
-                      className="bg-white p-4 rounded shadow border border-gray-200"
+                      className="bg-white p-4 rounded shadow border border-gray-200 cursor-pointer"
+                      onClick={() => toggleExpand(t.id)}
                     >
-                      <h4 className="font-bold text-lg mb-1 capitalize">{t.category}</h4>
-                      <div className="text-sm space-y-1">
-                        {Object.entries(t).map(([key, value]) => {
-                          if (key === "RecordedAt") {
-                            const date = value?.toDate?.().toLocaleString() || "N/A";
-                            return (
-                              <p key={key}>
-                                <strong>{key}:</strong> {date}
-                              </p>
-                            );
-                          } else {
-                            return (
-                              <p key={key}>
-                                <strong>{key}:</strong> {String(value)}
-                              </p>
-                            );
-                          }
-                        })}
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-bold text-lg capitalize">
+                          {t.category}
+                        </h4>
+                        <span className="text-sm text-gray-500">
+                          {t.RecordedAt?.toDate?.().toLocaleDateString() || ""}
+                        </span>
                       </div>
+
+                      {expandedId === t.id && (
+                        <div className="text-sm space-y-1 mt-2">
+                          {Object.entries(t).map(([key, value]) => {
+                            if (key === "RecordedAt") {
+                              const date =
+                                value?.toDate?.().toLocaleString() || "N/A";
+                              return (
+                                <p key={key}>
+                                  <strong>{key}:</strong> {date}
+                                </p>
+                              );
+                            } else {
+                              return (
+                                <p key={key}>
+                                  <strong>{key}:</strong> {String(value)}
+                                </p>
+                              );
+                            }
+                          })}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -177,5 +181,4 @@ const TransactionPage = () => {
     </div>
   );
 };
-
 export default TransactionPage;

@@ -1,9 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-
 const InventoryPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -13,10 +11,8 @@ const InventoryPage = () => {
   const [category, setCategory] = useState("--select--");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
-
   const unitOptions = ["--select--", "Pack", "Pieces", "Kg", "Litres"];
-  const categoryOptions = ["--select--", "Tea", "Snacks", "others"];
-
+  const categoryOptions = ["--select--", "Food","Utensils","Drinks", "others"];
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -25,7 +21,6 @@ const InventoryPage = () => {
       navigate("/login");
     }
   }, [navigate]);
-
   const isFormValid =
     name.trim() !== "" &&
     price !== "" &&
@@ -39,7 +34,6 @@ const InventoryPage = () => {
       alert("Please fill in all fields and select valid options.");
       return;
     }
-
     setLoading(true);
     try {
       await addDoc(collection(db, "inventory"), {
@@ -52,10 +46,9 @@ const InventoryPage = () => {
         role: user?.role || "staff",
         RecordedAt: serverTimestamp(),
       });
-
       alert("Inventory item saved successfully.");
       setName("");
-      setPrice("");
+      setPrice("0");
       setUnitOfPrice("--select--");
       setCategory("--select--");
       setQuantity("");
@@ -66,7 +59,6 @@ const InventoryPage = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow relative">
@@ -89,7 +81,6 @@ const InventoryPage = () => {
               required
             />
           </div>
-
           <div>
             <label className="block font-medium mb-1">Price</label>
             <input
@@ -103,7 +94,6 @@ const InventoryPage = () => {
               required
             />
           </div>
-
           <div>
             <label className="block font-medium mb-1">Unit of Price</label>
             <select
@@ -119,7 +109,6 @@ const InventoryPage = () => {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block font-medium mb-1">Category (Type)</label>
             <select
@@ -135,7 +124,6 @@ const InventoryPage = () => {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block font-medium mb-1">Quantity</label>
             <input
@@ -149,7 +137,6 @@ const InventoryPage = () => {
               required
             />
           </div>
-
           <button
             type="submit"
             disabled={!isFormValid || loading}
@@ -166,6 +153,5 @@ const InventoryPage = () => {
     </div>
   );
 };
-
 export default InventoryPage;
 

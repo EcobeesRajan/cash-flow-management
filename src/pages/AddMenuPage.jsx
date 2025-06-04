@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-
 const AddMenuPage = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -28,7 +27,6 @@ const AddMenuPage = () => {
 
     try {
       if (!user) throw new Error("User not logged in");
-
       await addDoc(collection(db, "menu"), {
         name,
         type,
@@ -75,7 +73,6 @@ const AddMenuPage = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-
           <div>
             <label className="block font-semibold mb-1">Category / Type</label>
             <select
@@ -86,10 +83,10 @@ const AddMenuPage = () => {
             >
               <option value="Tea">Tea</option>
               <option value="Snacks">Snacks</option>
+              <option value="Drinks">Drink</option>
               <option value="Others">Others</option>
             </select>
           </div>
-
           <div>
             <label className="block font-semibold mb-1">Price</label>
             <input
@@ -101,7 +98,6 @@ const AddMenuPage = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-
           <div>
             <label className="block font-semibold mb-1">Unit</label>
             <select
@@ -112,9 +108,9 @@ const AddMenuPage = () => {
             >
               <option value="Pics">Pics</option>
               <option value="Packet">Packet</option>
+               <option value="Cup">Cup</option>
             </select>
           </div>
-
           <div>
             <label className="block font-semibold mb-1">Quantity</label>
             <input
@@ -126,7 +122,6 @@ const AddMenuPage = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -139,5 +134,4 @@ const AddMenuPage = () => {
     </div>
   );
 };
-
 export default AddMenuPage;

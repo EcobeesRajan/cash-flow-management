@@ -1,15 +1,12 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-
 const ExpensesPage = () => {
   const navigate = useNavigate();
   const [expenseType, setExpenseType] = useState("");
   const [inventoryList, setInventoryList] = useState([]);
   const [selectedInventory, setSelectedInventory] = useState(null);
-
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -17,9 +14,7 @@ const ExpensesPage = () => {
   const [dueAmount, setDueAmount] = useState(0);
   const [status, setStatus] = useState("Paid");
   const [submitting, setSubmitting] = useState(false);
-
   const user = JSON.parse(localStorage.getItem("user"));
-
   useEffect(() => {
     const fetchInventory = async () => {
       try {
@@ -35,33 +30,25 @@ const ExpensesPage = () => {
     };
     fetchInventory();
   }, []);
-
   useEffect(() => {
     const total = parseFloat(totalAmount) || 0;
     const paid = parseFloat(paidAmount) || 0;
     setDueAmount(Math.max(total - paid, 0));
   }, [totalAmount, paidAmount]);
-
   const isDetailsFilled = () => {
     if (!expenseType) return false;
-
     if (expenseType === "Inventory") {
       return selectedInventory;
     }
-
     if (expenseType === "Wages" || expenseType === "Rent") {
       return to && purpose && totalAmount && paidAmount;
     }
-
     return false;
   };
-
   const handleSubmit = async () => {
     if (!user || !user.username) return alert("User not logged in.");
     if (!isDetailsFilled()) return alert("Please fill all required fields.");
-
     setSubmitting(true);
-
     const baseData = {
       type: "expense",
       category: expenseType,
@@ -70,9 +57,7 @@ const ExpensesPage = () => {
       role: user.role || "staff",
       RecordedAt: serverTimestamp(),
     };
-
     let expenseData = {};
-
     if (expenseType === "Inventory") {
       expenseData = {
         "inventory-id": selectedInventory.id,
@@ -91,13 +76,11 @@ const ExpensesPage = () => {
         dueAmount: dueAmount,
       };
     }
-
     try {
       await addDoc(collection(db, "transaction"), {
         ...baseData,
         ...expenseData,
       });
-
       alert("Expense recorded successfully!");
       setExpenseType("");
       setSelectedInventory(null);
@@ -114,7 +97,6 @@ const ExpensesPage = () => {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="p-4 max-w-xl mx-auto">
       <button
@@ -125,7 +107,6 @@ const ExpensesPage = () => {
       </button>
 
       <h2 className="text-xl font-bold mb-4">Record Expense</h2>
-
       <div className="mb-6">
         <label className="block font-semibold mb-2">Expense Type:</label>
         <div className="flex gap-6">
@@ -152,7 +133,6 @@ const ExpensesPage = () => {
           ))}
         </div>
       </div>
-
       {expenseType === "Inventory" && (
         <>
           <div className="mb-4">
@@ -174,7 +154,6 @@ const ExpensesPage = () => {
               ))}
             </select>
           </div>
-
           {selectedInventory && (
             <div className="border rounded p-4 bg-gray-50 mb-4 space-y-1">
               <h4 className="font-semibold mb-2">Inventory Details</h4>
@@ -194,7 +173,6 @@ const ExpensesPage = () => {
           )}
         </>
       )}
-
       {(expenseType === "Wages" || expenseType === "Rent") && (
         <>
           <div className="mb-4">
@@ -255,7 +233,6 @@ const ExpensesPage = () => {
           </div>
         </>
       )}
-
       {isDetailsFilled() && (
         <div className="mb-6">
           <label className="block font-semibold mb-2">Status:</label>
@@ -275,7 +252,6 @@ const ExpensesPage = () => {
           </div>
         </div>
       )}
-
       <button
         onClick={handleSubmit}
         disabled={submitting || !isDetailsFilled()}
@@ -291,6 +267,5 @@ const ExpensesPage = () => {
     </div>
   );
 };
-
 export default ExpensesPage;
 
