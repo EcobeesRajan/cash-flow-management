@@ -9,9 +9,12 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../AuthContext";
+
 const Income = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
+
   const [menuItems, setMenuItems] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -20,14 +23,13 @@ const Income = () => {
   const [onlineAmount, setOnlineAmount] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
+    if (!user) {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [user, navigate]);
+
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -44,12 +46,17 @@ const Income = () => {
     };
     fetchMenu();
   }, []);
+
   const selectedItem = menuItems.find((item) => item.id === selectedItemId);
   const total = selectedItem ? selectedItem.price * quantity : 0;
 
   const handleSave = async () => {
-    if (!selectedItem || !note.trim()) {
-      alert("Please select a menu item and enter a note.");
+    if (!selectedItem) {
+      alert("Please select a menu item.");
+      return;
+    }
+    if (!note.trim()) {
+      alert("Please enter a note.");
       return;
     }
     if (!user) {
@@ -64,10 +71,11 @@ const Income = () => {
       const cash = Number(cashAmount);
       const online = Number(onlineAmount);
       if (cash + online !== total) {
-        alert(`Cash + Online must equal total (Rs.${total})`);
+        alert(`Price isnot equal to Rs.${total}`);
         return;
       }
     }
+
     try {
       setSaving(true);
       const record = {
@@ -77,7 +85,7 @@ const Income = () => {
         "menu-name": selectedItem.name,
         "menu-unit-of-price": selectedItem.unit,
         menu_price: selectedItem.price,
-        quantity: quantity,
+        quantity,
         Total_price: total,
         status: paymentType,
         cash:
@@ -93,12 +101,13 @@ const Income = () => {
             ? total
             : 0,
         Logs: note,
-        added_by: user.username,
+        added_by: user.username || "Unknown",
         role: user.role || "staff",
         RecordedAt: serverTimestamp(),
       };
       await addDoc(collection(db, "transaction"), record);
       alert("Income record saved successfully.");
+
       setSelectedItemId("");
       setQuantity(1);
       setPaymentType("Cash");
@@ -112,6 +121,7 @@ const Income = () => {
       setSaving(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-xl mx-auto w-full bg-white p-6 rounded-lg shadow-md">
@@ -120,12 +130,13 @@ const Income = () => {
             onClick={() => navigate("/dashboard")}
             className="text-blue-600 font-semibold hover:underline"
           >
-            ← Back
+             Back
           </button>
           <h2 className="text-2xl font-bold text-center absolute left-1/2 transform -translate-x-1/2">
             Record Income
           </h2>
         </div>
+
         <select
           value={selectedItemId}
           onChange={(e) => setSelectedItemId(e.target.value)}
@@ -138,25 +149,28 @@ const Income = () => {
             </option>
           ))}
         </select>
+
         {selectedItem && (
-          <div className="flex items-center space-x-2 mb-4">
-            <label htmlFor="menuquantity"><h2 className="font-bold">Quantity</h2> </label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-1/2 px-3 py-2 border rounded-md"
-              placeholder="Quantity"
-            />
-            <span className="text-gray-700">{selectedItem.unit}</span>
-          </div>
+          <>
+            <div className="flex items-center space-x-2 mb-4">
+              <label htmlFor="menuquantity" className="font-bold">
+                Quantity
+              </label>
+              <input
+                id="menuquantity"
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-1/2 px-3 py-2 border rounded-md"
+                placeholder="Quantity"
+              />
+              <span className="text-gray-700">{selectedItem.unit}</span>
+            </div>
+            <div className="mb-4 text-lg font-semibold">Total: Rs.{total}</div>
+          </>
         )}
-        {selectedItem && (
-          <div className="mb-4 text-lg font-semibold">
-            Total: Rs.{total}
-          </div>
-        )}
+
         <select
           value={paymentType}
           onChange={(e) => setPaymentType(e.target.value)}
@@ -185,6 +199,7 @@ const Income = () => {
             />
           </div>
         )}
+
         <textarea
           required
           placeholder="Note"
@@ -193,6 +208,7 @@ const Income = () => {
           className="w-full mb-4 px-3 py-2 border rounded-md"
           rows={3}
         />
+
         <button
           onClick={handleSave}
           disabled={saving}
@@ -204,5 +220,5 @@ const Income = () => {
     </div>
   );
 };
-export default Income;
 
+export default Income;

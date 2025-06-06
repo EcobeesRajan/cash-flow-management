@@ -4,7 +4,7 @@ import Dashboard from './pages/Dashboard';
 import InventoryPage from './pages/Inventory';
 import ExpensesPage from './pages/Expenses';
 import TransactionPage from './pages/Transaction';
-import MenuPage from './pages/MenuPage';
+import MenuPage from './pages/Menu';
 import IncomePage from './pages/Income';
 import AddMenuPage from './pages/AddMenu';
 import PrivateRoute from './components/PrivateRoute';

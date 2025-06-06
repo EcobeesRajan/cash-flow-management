@@ -1,12 +1,21 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../AuthContext";
+
 const Menu = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/login");
+    }
+  }, [authLoading, user, navigate]);
+
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -25,16 +34,17 @@ const Menu = () => {
     };
     fetchMenu();
   }, []);
+
   const groupByDate = (data) => {
     const groups = {};
     data.forEach((item) => {
       const recordedAt = item.RecordedAt?.toDate?.();
       if (!recordedAt) return;
-        
-      const label = recordedAt.toLocaleDateString("en-GB", {
-        weekday: "long",
+
+      const label = recordedAt.toLocaleDateString("en-US", {
+        weekday: "short",
         day: "2-digit",
-        month: "short",
+        month: "long",
         year: "numeric",
       });
 
@@ -43,7 +53,9 @@ const Menu = () => {
     });
     return groups;
   };
+
   const groupedMenuItems = groupByDate(menuItems);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-5xl mx-auto w-full bg-white p-6 rounded-lg shadow-md">
@@ -52,7 +64,7 @@ const Menu = () => {
             onClick={() => navigate("/dashboard")}
             className="text-blue-600 font-semibold hover:underline"
           >
-            ← Back
+             Back
           </button>
           <h2 className="text-2xl font-bold text-center absolute left-1/2 transform -translate-x-1/2">
             Menu
@@ -64,6 +76,7 @@ const Menu = () => {
             Add New Menu
           </button>
         </div>
+
         {loading ? (
           <p className="text-center py-4">Loading...</p>
         ) : Object.keys(groupedMenuItems).length === 0 ? (
@@ -95,7 +108,7 @@ const Menu = () => {
                         <td className="p-2 border">Rs. {item.price}</td>
                         <td className="p-2 border">{item.unit}</td>
                         <td className="p-2 border">{item.quantity}</td>
-                        <td className="p-2 border">{item.username}</td>
+                        <td className="p-2 border">{item.username || "—"}</td>
                         <td className="p-2 border">
                           {item.RecordedAt?.toDate
                             ? item.RecordedAt.toDate().toLocaleString()
@@ -113,5 +126,5 @@ const Menu = () => {
     </div>
   );
 };
-export default Menu;
 
+export default Menu;

@@ -1,47 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../AuthContext";
+
 const AddMenu = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [name, setName] = useState("");
-  const [type, setType] = useState("Tea");
+  const [type, setType] = useState("--Select--");
   const [price, setPrice] = useState("");
-  const [unit, setUnit] = useState("Pic");
+  const [unit, setUnit] = useState("--Select--");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
+    if (!user) {
+      alert("User not logged in.");
+      return;
+    }
+    if (type === "--Select--") {
+      alert("Category Missing.");
+      return;
+    }
+    if (unit === "--Select--") {
+      alert("Unit Missing.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      if (!user) throw new Error("User not logged in");
       await addDoc(collection(db, "menu"), {
         name,
         type,
         price: Number(price),
         unit,
         quantity: Number(quantity),
-        addedBy: user.email || user.username || "Unknown",
         RecordedAt: serverTimestamp(),
-        role: user.role || "staff",
         username: user.username || "Unknown",
+        role: user.role || "staff",
       });
-
       navigate("/menu");
     } catch (error) {
       console.error("Failed to add menu:", error);
+      alert("Error adding menu item.");
+    } finally {
       setLoading(false);
     }
   };
@@ -54,7 +59,7 @@ const AddMenu = () => {
             onClick={() => navigate("/menu")}
             className="text-blue-600 font-semibold hover:underline"
           >
-            ← Back
+            Back
           </button>
           <h2 className="text-2xl font-bold text-center absolute left-1/2 transform -translate-x-1/2">
             Add New Menu Item
@@ -74,16 +79,17 @@ const AddMenu = () => {
             />
           </div>
           <div>
-            <label className="block font-semibold mb-1">Category / Type</label>
+            <label className="block font-semibold mb-1">Category</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
             >
+              <option value="--Select--">--Select--</option>
               <option value="Tea">Tea</option>
               <option value="Snacks">Snacks</option>
-              <option value="Drinks">Drink</option>
+              <option value="Drinks">Drinks</option>
               <option value="Others">Others</option>
             </select>
           </div>
@@ -106,9 +112,10 @@ const AddMenu = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
             >
+              <option value="--Select--">--Select--</option>
               <option value="Pics">Pics</option>
               <option value="Packet">Packet</option>
-               <option value="Cup">Cup</option>
+              <option value="Cup">Cup</option>
             </select>
           </div>
           <div>
@@ -134,4 +141,6 @@ const AddMenu = () => {
     </div>
   );
 };
+
 export default AddMenu;
+

@@ -2,25 +2,28 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../AuthContext";
+
 const Inventory = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [unitOfPrice, setUnitOfPrice] = useState("--select--");
   const [category, setCategory] = useState("--select--");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
+
   const unitOptions = ["--select--", "Pack", "Pieces", "Kg", "Litres"];
-  const categoryOptions = ["--select--", "Food","Utensils","Drinks", "others"];
+  const categoryOptions = ["--select--", "Food", "Utensils", "Drinks", "others"];
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate("/login");
+    if (!user) {
+      navigate("/");
     }
-  }, [navigate]);
+  }, [user, navigate]);
+
   const isFormValid =
     name.trim() !== "" &&
     price !== "" &&
@@ -34,7 +37,9 @@ const Inventory = () => {
       alert("Please fill in all fields and select valid options.");
       return;
     }
+
     setLoading(true);
+
     try {
       await addDoc(collection(db, "inventory"), {
         name: name.trim(),
@@ -42,13 +47,14 @@ const Inventory = () => {
         unitOfPrice,
         category,
         quantity: parseInt(quantity, 10),
-        addedBy: user?.username || "Unknown",
-        role: user?.role || "staff",
+        addedBy: user?.email || "Unknown",
+        role: "staff",
         RecordedAt: serverTimestamp(),
       });
-      alert("Inventory item saved successfully.");
+
+      alert("saved successfully.");
       setName("");
-      setPrice("0");
+      setPrice("");
       setUnitOfPrice("--select--");
       setCategory("--select--");
       setQuantity("");
@@ -59,6 +65,7 @@ const Inventory = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow relative">
@@ -66,9 +73,11 @@ const Inventory = () => {
           onClick={() => navigate("/dashboard")}
           className="absolute top-4 left-4 text-blue-600 font-semibold hover:underline"
         >
-          ← Back
+           Back
         </button>
+
         <h2 className="text-2xl font-bold text-center mb-6">Add Inventory Item</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block font-medium mb-1">Item Name</label>
@@ -81,6 +90,7 @@ const Inventory = () => {
               required
             />
           </div>
+
           <div>
             <label className="block font-medium mb-1">Price</label>
             <input
@@ -94,6 +104,7 @@ const Inventory = () => {
               required
             />
           </div>
+
           <div>
             <label className="block font-medium mb-1">Unit of Price</label>
             <select
@@ -109,6 +120,7 @@ const Inventory = () => {
               ))}
             </select>
           </div>
+
           <div>
             <label className="block font-medium mb-1">Category (Type)</label>
             <select
@@ -124,6 +136,7 @@ const Inventory = () => {
               ))}
             </select>
           </div>
+
           <div>
             <label className="block font-medium mb-1">Quantity</label>
             <input
@@ -137,6 +150,7 @@ const Inventory = () => {
               required
             />
           </div>
+
           <button
             type="submit"
             disabled={!isFormValid || loading}
@@ -153,5 +167,5 @@ const Inventory = () => {
     </div>
   );
 };
-export default Inventory;
 
+export default Inventory;

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
+
 const Transaction = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
@@ -15,50 +16,63 @@ const Transaction = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
-      const snapshot = await getDocs(collection(db, "transaction"));
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTransactions(data);
-      setLoading(false);
+      try {
+
+        const q = query(
+          collection(db, "transaction"),
+          orderBy("RecordedAt", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTransactions();
   }, []);
+
   const isWithinDateRange = (date) => {
     if (!startDate && !endDate) return true;
-    const d = new Date(date.toDate());
+    if (!date?.toDate) return false;
+    const d = date.toDate();
     if (startDate && d < new Date(startDate)) return false;
     if (endDate && d > new Date(endDate)) return false;
     return true;
   };
+
   const filteredTransactions = transactions.filter((t) => {
     const matchesType =
       typeFilter === "all" ||
       t.category?.toLowerCase() === typeFilter.toLowerCase();
-    const matchesDate = t.RecordedAt && isWithinDateRange(t.RecordedAt);
+    const matchesDate = isWithinDateRange(t.RecordedAt);
     return matchesType && matchesDate;
   });
+
   const groupByDate = (data) => {
     const groups = {};
+    const todayObj = new Date();
+    const yesterdayObj = new Date();
+    yesterdayObj.setDate(todayObj.getDate() - 1);
+
     data.forEach((t) => {
       if (!t.RecordedAt) return;
       const dateObj = t.RecordedAt.toDate();
-      const todayObj = new Date();
-      const yesterdayObj = new Date();
-      yesterdayObj.setDate(todayObj.getDate() - 1);
-      let label;
-      const isToday = dateObj.toDateString() === todayObj.toDateString();
-      const isYesterday =
-        dateObj.toDateString() === yesterdayObj.toDateString();
 
-      if (isToday) label = "Today";
-      else if (isYesterday) label = "Yesterday";
+      let label;
+      if (dateObj.toDateString() === todayObj.toDateString()) label = "Today";
+      else if (dateObj.toDateString() === yesterdayObj.toDateString())
+        label = "Yesterday";
       else
-        label = dateObj.toLocaleDateString("en-GB", {
-          weekday: "long",
+        label = dateObj.toLocaleDateString("en-US", {
+          weekday: "short",
           day: "2-digit",
-          month: "short",
+          month: "long",
           year: "numeric",
         });
 
@@ -68,15 +82,18 @@ const Transaction = () => {
 
     return groups;
   };
+
   const grouped = groupByDate(filteredTransactions);
+
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
         <button onClick={() => navigate(-1)} className="text-blue-600">
-          ← Back
+          Back
         </button>
         <div className="flex gap-2 flex-wrap">
           <select
@@ -106,6 +123,7 @@ const Transaction = () => {
           />
         </div>
       </div>
+
       <h2 className="text-2xl font-bold mb-4 text-center">
         Transaction Records
       </h2>
@@ -116,10 +134,14 @@ const Transaction = () => {
           {startDate || "beginning"} to {endDate || "today"}
         </div>
       )}
+
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="animate-pulse bg-white p-4 rounded shadow">
+            <div
+              key={idx}
+              className="animate-pulse bg-white p-4 rounded shadow"
+            >
               <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
               <div className="h-4 bg-gray-300 rounded w-1/2"></div>
             </div>
@@ -181,4 +203,5 @@ const Transaction = () => {
     </div>
   );
 };
+
 export default Transaction;
