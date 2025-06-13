@@ -7,7 +7,7 @@ import TransactionPage from './pages/Transaction';
 import MenuPage from './pages/Menu';
 import IncomePage from './pages/Income';
 import AddMenuPage from './pages/AddMenu';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './Route/PrivateRoute';
 import { useAuth } from './AuthContext';
 
 const AppRoutes = () => {

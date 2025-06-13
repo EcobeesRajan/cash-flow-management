@@ -1,67 +1,43 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
+import SubmitButton from "../components/buttons/SubmitButton";
+import LogoutButton from "../components/buttons/LogoutButton";
+import DashboardButton from "../components/buttons/DashboardButton";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
+      navigate("/");
+    } catch (err) {
+      alert("Failed to logout.");
+      console.error(err);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold mb-6">
-        Welcome, {user?.email || 'User'}
-      </h1>
-
-      <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-        <button
-          onClick={() => navigate('/inventory')}
-          className="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg"
-        >
-          Inventory
-        </button>
-        <button
-          onClick={() => navigate('/expenses')}
-          className="bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg"
-        >
-          Expenses
-        </button>
-        <button
-          onClick={() => navigate('/income')}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg"
-        >
-          Income
-        </button>
-        <button
-          onClick={() => navigate('/menu')}
-          className="bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg"
-        >
-          Menu
-        </button>
-        <button
-          onClick={() => navigate('/transaction')}
-          className="bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg col-span-2"
-        >
-          Transaction
-        </button>
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+      <div className="max-w-xl w-full bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-3xl font-bold mb-4">
+          Welcome, {user?.username || user?.email || "User"}!
+        </h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <DashboardButton label="Inventory" to="/inventory" />
+            <DashboardButton label="Expenses" to="/expenses" />
+            <DashboardButton label="Income" to="/income" />
+            <DashboardButton label="Menu" to="/menu" />
+            <DashboardButton label="Transactions" to="/transaction" />
+          </div>
+       <LogoutButton
+          onClick={handleLogout} label="Logout" disabled={false} loading={false} fullWidth={false} type="button"
+        />
       </div>
-
-      <button
-        onClick={handleLogout}
-        className="mt-6 text-red-600 hover:underline"
-      >
-        Logout
-      </button>
     </div>
   );
 };
 
 export default Dashboard;
+

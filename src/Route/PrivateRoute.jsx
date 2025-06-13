@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '/home/rajan/Desktop/New Cash FLow Management/cash-flow-management/src/AuthContext.jsx';
+import { useAuth } from '/home/rajan/Desktop/New CFM (Copy)/cash-flow-management/src/AuthContext.jsx';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
