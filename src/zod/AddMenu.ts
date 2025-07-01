@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const AddMenuSchema = z.object({
-  name: z.string().trim().min(2, "Name is required"),
+  name: z.string().trim().min(3, "Name must be 3 characters required"),
   category: z.enum(["Tea", "Snacks", "Drinks", "Others"], {
     errorMap: () => ({ message: "Please select a category" }),
   }),
@@ -10,7 +10,7 @@ export const AddMenuSchema = z.object({
     z
       .string()
       .nonempty("Price is required")
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 1, {
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 1, {
         message: "Price is empty. Enter a valid number",
       })
   ),

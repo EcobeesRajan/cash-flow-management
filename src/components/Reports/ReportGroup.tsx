@@ -1,5 +1,5 @@
 import React from "react";
-import { Transaction } from "../../pages/Reports";
+import { Transaction } from "../../types/Transaction";
 
 type Props = {
   transactions: Transaction[];
@@ -41,7 +41,7 @@ const ReportGroup: React.FC<Props> = ({ transactions, viewType }) => {
                 const amount =
                   viewType === "income"
                     ? t.Total_price
-                    : t.totalAmount ?? t["inventory-price"] ?? t["staff-payment"] ?? 0;
+                    : t.totalAmount ?? t["inventory-price"] ?? 0;
 
                 return (
                   <tr key={t.id} className="border-t">

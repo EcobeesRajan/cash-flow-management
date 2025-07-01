@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BackButton from "../components/buttons/BackButton";
 import { useTransaction } from "../hooks/useTransaction";
 import { groupByDate } from "../components/transaction/GroupByDate";
 import TransactionCard from "../components/transaction/TransactionCard";
 import TransactionFilters from "../components/transaction/TransactionFilters";
+import Pagination from "../components/field/Pagination";
 import { TransactionRecord } from "../types/TransactionRecord";
 
 const Transaction = () => {
@@ -14,6 +15,10 @@ const Transaction = () => {
   const [endDate, setEndDate] = useState<string>("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Check the date is in range
   const isWithinDateRange = (timestamp?: TransactionRecord["recordedAt"]): boolean => {
     if (!timestamp?.toDate) return false;
     const date = timestamp.toDate();
@@ -22,8 +27,11 @@ const Transaction = () => {
     return true;
   };
 
-  const toLowerString = (val: unknown): string => (typeof val === "string" ? val.toLowerCase() : "");
+  // Convert to lowercase
+  const toLowerString = (val: unknown): string =>
+    typeof val === "string" ? val.toLowerCase() : "";
 
+  // Filter transactions by type and date
   const filtered: TransactionRecord[] = transactions.filter((t) => {
     const category = toLowerString(t.category);
     const type = toLowerString(t.type);
@@ -33,10 +41,24 @@ const Transaction = () => {
     return matchesType && isWithinDateRange(t.recordedAt);
   });
 
-  const grouped = groupByDate<TransactionRecord>(filtered);
+  // Pagination 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedItems = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
+  // Paginatin group by date
+  const grouped = groupByDate<TransactionRecord>(paginatedItems);
+
+  // Toggle expand/collapse on a transaction card
   const toggleExpand = (id: string) =>
     setExpandedId((prev) => (prev === id ? null : id));
+
+  // Reset page
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter, startDate, endDate]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -70,7 +92,10 @@ const Transaction = () => {
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="animate-pulse bg-white p-4 rounded shadow">
+            <div
+              key={idx}
+              className="animate-pulse bg-white p-4 rounded shadow"
+            >
               <div className="h-4 bg-gray-500 rounded w-3/4 mb-2"></div>
               <div className="h-4 bg-gray-500 rounded w-1/2"></div>
             </div>
@@ -79,23 +104,31 @@ const Transaction = () => {
       ) : grouped.length === 0 ? (
         <p className="text-center text-gray-500">No transactions found.</p>
       ) : (
-        <div className="space-y-6">
-          {grouped.map(([dateLabel, records]) => (
-            <div key={dateLabel}>
-              <h3 className="text-lg font-semibold mb-2">{dateLabel}</h3>
-              <div className="space-y-4">
-                {records.map((t) => (
-                  <TransactionCard
-                    key={t.id}
-                    transaction={t}
-                    expandedId={expandedId}
-                    toggleExpand={toggleExpand}
-                  />
-                ))}
+        <>
+          <div className="space-y-6">
+            {grouped.map(([dateLabel, records]) => (
+              <div key={dateLabel}>
+                <h3 className="text-lg font-semibold mb-2">{dateLabel}</h3>
+                <div className="space-y-4">
+                  {records.map((t) => (
+                    <TransactionCard
+                      key={t.id}
+                      transaction={t}
+                      expandedId={expandedId}
+                      toggleExpand={toggleExpand}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
     </div>
   );

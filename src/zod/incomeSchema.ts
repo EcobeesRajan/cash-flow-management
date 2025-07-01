@@ -17,12 +17,16 @@ export const IncomeSchema = z
 
     cashAmount: z.preprocess(
       (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number({ invalid_type_error: "Cash amount must be a number" }).optional()
+      z
+        .number({ invalid_type_error: "Cash amount must be a number" })
+        .optional()
     ),
 
     onlineAmount: z.preprocess(
       (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number({ invalid_type_error: "Online amount must be a number" }).optional()
+      z
+        .number({ invalid_type_error: "Online amount must be a number" })
+        .optional()
     ),
 
     note: z.string().min(1, "Note is required"),
@@ -42,7 +46,6 @@ export const IncomeSchema = z
     }
   )
 
-  // Online only
   .refine(
     (data) =>
       data.paymentType !== "Online" ||
@@ -53,7 +56,6 @@ export const IncomeSchema = z
     }
   )
 
-  // Cash only
   .refine(
     (data) =>
       data.paymentType !== "Cash" ||

@@ -15,6 +15,7 @@ export type Transaction = {
   added_by?: string;
   status? : string;
   role?: string;
+["inventory-price"]?: number;
   recordedAt?: {
     seconds: number;
     nanoseconds: number;

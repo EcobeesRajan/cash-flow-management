@@ -10,7 +10,7 @@ import InventoryExpenseForm, { InventoryItem } from "../components/expenses/Inve
 import WagesRentForm from "../components/expenses/WagesRentForm";
 import StatusSelector from "../components/expenses/StatusSelector";
 
-import { ExpenseSchema, ExpenseForm, ExpenseErrors } from "../zod/Expenses";
+import { ExpenseSchema, ExpenseErrors } from "../zod/Expenses";
 
 type RawExpenseForm = {
     expenseType: "" | "Inventory" | "Wages" | "Rent";

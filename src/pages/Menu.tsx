@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import useMenuItems, { MenuItem } from "../hooks/UseMenuItems";
 import MenuHeader from "../components/menu/MenuHeader";
 import MenuTable from "../components/menu/MenuTable";
+import Pagination from "../components/field/Pagination";
 
 const Menu: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -11,11 +12,28 @@ const Menu: React.FC = () => {
 
   const { menuItems, loading, error } = useMenuItems();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/login");
     }
   }, [authLoading, user, navigate]);
+
+  // Calculate total pages based on total menu items
+  const totalPages = Math.ceil(menuItems.length / itemsPerPage);
+
+  // Slice the menuItems to only show items for current page
+  const paginatedItems = menuItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset to page 1 when menuItems change (like after loading)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [menuItems]);
 
   const columns = [
     { label: "Name" },
@@ -52,7 +70,20 @@ const Menu: React.FC = () => {
         ) : menuItems.length === 0 ? (
           <p className="text-center text-gray-500">No menu items found.</p>
         ) : (
-          <MenuTable<MenuItem> items={menuItems} columns={columns} rowRenderer={rowRenderer} />
+          <>
+            <MenuTable<MenuItem>
+              items={paginatedItems}
+              columns={columns}
+              rowRenderer={rowRenderer}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                if (page >= 1 && page <= totalPages) setCurrentPage(page);
+              }}
+            />
+          </>
         )}
       </div>
     </div>
