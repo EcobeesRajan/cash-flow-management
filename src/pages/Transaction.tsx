@@ -18,7 +18,7 @@ const Transaction = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Check the date is in range
+  // Check the date
   const isWithinDateRange = (timestamp?: TransactionRecord["recordedAt"]): boolean => {
     if (!timestamp?.toDate) return false;
     const date = timestamp.toDate();
@@ -27,7 +27,7 @@ const Transaction = () => {
     return true;
   };
 
-  // Convert to lowercase
+  // to lowercase
   const toLowerString = (val: unknown): string =>
     typeof val === "string" ? val.toLowerCase() : "";
 

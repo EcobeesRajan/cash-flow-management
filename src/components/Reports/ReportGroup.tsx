@@ -1,61 +1,75 @@
 import React from "react";
 import { Transaction } from "../../types/Transaction";
+import formatDate from "../../utils/FormatDate";
 
 type Props = {
   transactions: Transaction[];
   viewType: "income" | "expense";
 };
 
-const formatDate = (timestamp?: { seconds: number }) => {
-  if (!timestamp) return "";
-  const date = new Date(timestamp.seconds * 1000);
-  return date.toLocaleDateString("en-GB");
-};
-
-const groupByDate = (transactions: Transaction[]) => {
-  return transactions.reduce((groups: Record<string, Transaction[]>, t) => {
-    const date = formatDate(t.recordedAt);
-    if (!groups[date]) groups[date] = [];
-    groups[date].push(t);
-    return groups;
-  }, {});
-};
-
 const ReportGroup: React.FC<Props> = ({ transactions, viewType }) => {
-  const grouped = groupByDate(transactions);
-
   return (
-    <div className="space-y-6">
-      {Object.entries(grouped).map(([date, entries]) => (
-        <div key={date}>
-          <h3 className="text-lg font-bold mb-2 border-b">{date}</h3>
-          <table className="min-w-full table-auto border border-gray-300 mb-4">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((t) => {
-                const amount =
-                  viewType === "income"
-                    ? t.Total_price
-                    : t.totalAmount ?? t["inventory-price"] ?? 0;
+    <div className="overflow-x-auto shadow bg-white rounded-lg">
+      <table className="min-w-full table-auto border border-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-2 text-left">Name</th>
+            <th className="p-2 text-left">Category</th>
+            <th className="p-2 text-left">Quantity</th>
+            <th className="p-2 text-left">Purpose</th>
+            <th className="p-2 text-left">Total Amount</th>
+            <th className="p-2 text-left">Status</th>
+            <th className="p-2 text-left">Added By</th>
+            <th className="p-2 text-left">Recorded At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((t) => {
+            const name =
+              viewType === "income"
+                ? t.menuName
+                : t["inventory-name"] || t.to;
 
-                return (
-                  <tr key={t.id} className="border-t">
-                    <td className="px-4 py-2">{t.category}</td>
-                    <td className="px-4 py-2">Rs.{amount}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ))}
+            const amount =
+              viewType === "income"
+                ? t.Total_price
+                : t.totalAmount ?? t["inventory-price"] ?? 0;
+
+            const purpose =
+              viewType === "income"
+                ? t.purpose || "-"
+                : t.purpose || "-"
+
+            const quantity =
+              viewType === "income"
+                ? t.quantity || t["inventory-quantity"] || "-"
+                : t.quantity || t["inventory-quantity"] || "-";
+
+            const status =
+              viewType === "expense"
+                ? t.status || "-"
+                : t.status ?? "-"
+
+            const addedBy = t.addedBy || t.added_by;
+
+            return (
+              <tr key={t.id} className="border-t hover:bg-gray-50">
+                <td className="p-2">{name}</td>
+                <td className="p-2">{t.category}</td>
+                <td className="p-2">{quantity}</td>
+                <td className="p-2">{purpose}</td>
+                <td className="p-2">Rs. {amount}</td>
+                <td className="p-2">{status}</td>
+                <td className="p-2">{addedBy}</td>
+                <td className="p-2">{formatDate(t.recordedAt)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default ReportGroup;
+

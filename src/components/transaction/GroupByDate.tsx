@@ -1,7 +1,8 @@
 import React from "react";
 
 export type ItemWithRecordedAt = {
-  recordedAt?: { toDate: () => Date } | null;
+  recordedAt?: { toDate(): Date } | null | undefined;
+  // { toDate: () => Date } | null;
   [key: string]: unknown;
 };
 
