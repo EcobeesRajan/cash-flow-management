@@ -2,7 +2,7 @@ import React, { ComponentProps } from "react";
 
 type TextAreaFieldProps = {
   label: string;
-  error?: string;  // <-- Add error prop here
+  error?: string;  
 } & ComponentProps<"textarea">;
 
 const TextAreaField: React.FC<TextAreaFieldProps> = ({

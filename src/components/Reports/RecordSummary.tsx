@@ -1,8 +1,9 @@
 import { useState } from "react";
 import SummaryGrid from "./SummaryGrid";
 import ReportPDFDownload from "./ReportPDFDownload";
-import { Transaction } from "../../types/Transaction";
-import toJSDate from "../../utils/JSDate";
+import {Transaction} from "@/app/types/transaction/index";
+
+import toJSDate from "@/app/utils/date/jsDate";
 
 type RecordProps = {
   transactions: Transaction[];

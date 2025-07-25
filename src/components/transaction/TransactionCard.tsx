@@ -1,5 +1,5 @@
 import React from "react";
-import { TransactionRecord } from "../../types/TransactionRecord";
+import { TransactionRecord } from "@/app/types/transaction/record";
 
 type TransactionCardProps = {
   transaction: TransactionRecord;

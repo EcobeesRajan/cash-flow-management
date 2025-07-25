@@ -2,7 +2,7 @@ import React from "react";
 import InputField from "../field/InputField";
 import RadioGroup from "../RadioGroup";
 import Submit from "../buttons/Buttons";
-import type { AddMenuErrors } from "../../zod/AddMenu";
+import type { AddMenuErrors } from "@/app/zod/menu/addMenuSchema";
 
 type MenuFormProps = {
   name: string;

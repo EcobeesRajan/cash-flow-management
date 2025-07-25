@@ -1,6 +1,7 @@
 import React from "react";
-import { Transaction } from "../../types/Transaction";
-import formatDate from "../../utils/FormatDate";
+
+import {Transaction} from "@/app/types/transaction/index";
+import formatDate from "@/app/utils/date/formatDate";
 
 type Props = {
   transactions: Transaction[];

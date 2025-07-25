@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Transaction } from "../../types/Transaction";
+import {Transaction} from "@/app/types/transaction/index";
 import SalesPieChart from "./SalesPieChart";
 
 type Props = {
